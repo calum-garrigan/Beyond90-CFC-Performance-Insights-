@@ -6,11 +6,16 @@ from datetime import timedelta
 
 st.set_page_config(page_title="Player Performance Dashboard", layout="wide")
 
-st.title("\U0001F4CA Player Performance Dashboard")
-st.markdown("""
-Welcome to your personalized performance dashboard. Use the tabs below to explore how you’ve been training, recovering, and improving. 
-Each section provides visual feedback to help you and your support team make the best decisions.
-""")
+# --- Logo and Title ---
+col1, col2 = st.columns([1, 8])  # Adjust proportions as needed
+with col1:
+    st.image("chelsea_logo.png", width=60)  # Make sure this file is in the same folder
+with col2:
+    st.title("Player Performance Dashboard")
+    st.markdown("""
+    Welcome to your personalized performance dashboard. Use the tabs below to explore how you’ve been training, recovering, and improving.  
+    Each section provides visual feedback to help you and your support team make the best decisions.
+    """)
 
 # Load Data
 @st.cache_data
