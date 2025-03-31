@@ -211,20 +211,30 @@ with tab7:
     st.markdown("""
     **ACWR** compares the most recent week's load (acute) with the longer-term average (chronic).
     It's used to monitor injury risk and training spikes.
-    
+
     Formula:
-    
+
     `ACWR = Acute Load (7-day sum) / Chronic Load (28-day rolling average)`
     """)
 
-    acwr_metric = st.selectbox("Select Load Metric for ACWR", ["distance", "distance_over_27", "accel_decel_over_4_5"], index=0)
+    acwr_metric = st.selectbox("Select Load Metric for ACWR", [
+        "distance",
+        "distance_over_21",
+        "distance_over_24",
+        "distance_over_27",
+        "accel_decel_over_2_5",
+        "accel_decel_over_3_5",
+        "accel_decel_over_4_5"
+    ], index=3)
+
     acwr_df = gps_df[['date', acwr_metric]].dropna().sort_values(by='date')
+    acwr_df['date'] = pd.to_datetime(acwr_df['date'], errors='coerce')
+    acwr_df = acwr_df.dropna(subset=['date'])
     acwr_df.set_index('date', inplace=True)
 
     acwr_df['acute'] = acwr_df[acwr_metric].rolling(window=7).sum()
     acwr_df['chronic'] = acwr_df[acwr_metric].rolling(window=28).mean()
     acwr_df['ACWR'] = acwr_df['acute'] / acwr_df['chronic']
-
     acwr_df = acwr_df.dropna().reset_index()
 
     fig = px.line(acwr_df, x='date', y='ACWR', title=f"ACWR Over Time ({acwr_metric})")
@@ -238,6 +248,7 @@ with tab7:
     - ✅ **0.8 - 1.3**: Balanced and safe zone
     - ⚠️ **< 0.8**: Undertraining — consider increasing load
     - 🔴 **> 1.5**: Spike risk — potential injury risk from sudden overload
-    
+
     Always interpret ACWR in context with recovery, sleep, and subjective feedback.
     """)
+
