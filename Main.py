@@ -64,21 +64,25 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         season = st.selectbox("Filter by Season", gps_df['season'].dropna().unique())
-    filtered = gps_df[gps_df['season'] == season]
+    filtered = gps_df[gps_df['season'] == season].sort_values(by='date')
 
     with st.expander("📏 Distance Metrics"):
         fig = px.line(filtered, x='date', y=['distance', 'distance_over_21', 'distance_over_24', 'distance_over_27'],
                       title="Distance Over Time", labels={"value": "Distance (m)"})
+        fig.update_layout(xaxis_title="Date")
         st.plotly_chart(fig, use_container_width=True)
 
     with st.expander("⚡ Acceleration & Deceleration"):
         fig2 = px.line(filtered, x='date', y=['accel_decel_over_2_5', 'accel_decel_over_3_5', 'accel_decel_over_4_5'],
                        title="Accel/Decel Events")
+        fig2.update_layout(xaxis_title="Date")
         st.plotly_chart(fig2, use_container_width=True)
 
     with st.expander("🚀 Peak Speed & Session Time"):
         fig3 = px.line(filtered, x='date', y='peak_speed', title="Peak Speed Over Time (km/h)")
+        fig3.update_layout(xaxis_title="Date")
         fig4 = px.bar(filtered, x='date', y='day_duration', title="Session Duration (Minutes)")
+        fig4.update_layout(xaxis_title="Date")
         st.plotly_chart(fig3, use_container_width=True)
         st.plotly_chart(fig4, use_container_width=True)
 
@@ -86,6 +90,7 @@ with tab1:
         hr_cols = [col for col in ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms'] if col in filtered.columns]
         if hr_cols:
             fig5 = px.area(filtered, x='date', y=hr_cols, title="Heart Rate Zones (mins)")
+            fig5.update_layout(xaxis_title="Date")
             st.plotly_chart(fig5, use_container_width=True)
         else:
             st.warning("Heart rate zone columns are missing from the dataset.")
@@ -97,9 +102,9 @@ with tab2:
 
     with subtab1:
         view_by = st.selectbox("Group Benchmark % by:", ["movement", "quality", "expression"])
-        avg_df = phys_df.groupby(['testDate', view_by])['benchmarkPct'].mean().reset_index()
-        fig = px.line(avg_df, x='testDate', y='benchmarkPct', color=view_by,
+        fig = px.line(phys_df, x='testDate', y='benchmarkPct', color=view_by,
                       title=f"Benchmark % Over Time by {view_by.capitalize()}")
+        fig.update_layout(xaxis_title="Test Date")
         st.plotly_chart(fig, use_container_width=True)
 
     with subtab2:
@@ -124,6 +129,7 @@ with tab3:
     with subtab1:
         recovery_df.dropna(subset=["value"], inplace=True)
         pivot = recovery_df.groupby(['sessionDate', 'category'])['value'].mean().unstack()
+        pivot = pivot.sort_index()
         st.line_chart(pivot)
 
     with subtab2:
@@ -143,7 +149,17 @@ with tab3:
     emboss = recovery_df[recovery_df['category'] == 'total']
     if not emboss.empty:
         latest_score = emboss.sort_values(by='sessionDate')['value'].iloc[-1]
-        st.metric("🔵 Emboss Baseline Score (Overall Recovery)", f"{latest_score:.2f}")
+        if latest_score < -0.3:
+            color = "#FFA500"  # orange
+            emoji = "⚠️"
+        elif latest_score > 0.3:
+            color = "#00C851"  # green
+            emoji = "🟢"
+        else:
+            color = "#33B5E5"  # blue
+            emoji = "✅"
+
+        st.markdown(f"<h4 style='color:{color}'>{emoji} Emboss Baseline Score (Overall Recovery): {latest_score:.2f}</h4>", unsafe_allow_html=True)
         st.markdown("""
 **What it means:**  
 The Emboss Baseline Score reflects your overall physiological readiness.  
@@ -153,79 +169,3 @@ The Emboss Baseline Score reflects your overall physiological readiness.
 
 **Tip:** Combine this with recent sleep and workload data to guide your next session's intensity.
 """)
-
-# ---------------- PRIORITY GOALS ----------------
-with tab4:
-    st.header("🎯 Individual Priority Areas")
-    for _, row in priority_df.iterrows():
-        with st.expander(f"{row['Category']} – {row['Area']}"):
-            st.markdown(f"**🎯 Target:** {row['Target']}")
-            st.markdown(f"**📅 Set:** {row['Target set'].date()} | **Review:** {row['Review Date'].date()}")
-            st.markdown(f"**📌 Type:** {row['Performance Type']}")
-            status = row["Tracking"]
-            if status == "On Track":
-                st.success("✅ On Track")
-            elif status == "Achieved":
-                st.success("🏁 Goal Achieved")
-            else:
-                st.warning("⚠️ Needs Review")
-
-# ---------------- PLAYER SUMMARY ----------------
-with tab5:
-    st.header("📊 Player Snapshot Summary")
-
-    st.markdown("### 🔍 Quick Highlights")
-    if not gps_df.empty:
-        latest_gps = gps_df.sort_values(by='date').iloc[-1]
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Peak Speed (km/h)", f"{latest_gps['peak_speed']:.1f}")
-        col2.metric("Total Distance", f"{latest_gps['distance']:.0f} m")
-        col3.metric("Session Duration", f"{latest_gps['day_duration']} min")
-
-        st.markdown("### 🧠 Smart Insights")
-        top_game = gps_df.sort_values(by='distance', ascending=False).iloc[0]
-        st.info(f"Your highest match load this season was vs. {top_game['opposition_full']} ({top_game['distance']:.0f}m)")
-
-    avg_sleep = recovery_df[recovery_df['category'] == 'sleep_duration']
-    if not avg_sleep.empty:
-        recent_sleep = avg_sleep.sort_values('sessionDate').tail(7)['value'].mean()
-        if recent_sleep < 6.5:
-            st.warning("📍 Sleep dropped below 6.5 hrs last week — plan for extra recovery!")
-
-    st.markdown("### 📆 Latest Data Dates")
-    gps_latest = gps_df['date'].max()
-    phys_latest = phys_df['testDate'].max()
-    recovery_latest = recovery_df['sessionDate'].max()
-
-    st.markdown(f"- GPS: `{format_safe_date(gps_latest)}`")
-    st.markdown(f"- Physical Test: `{format_safe_date(phys_latest)}`")
-    st.markdown(f"- Recovery: `{format_safe_date(recovery_latest)}`")
-
-# ---------------- MATCH SUMMARY ----------------
-with tab6:
-    st.header("📅 Match Summary")
-    match_df = gps_df[gps_df['opposition_full'].notna()]
-
-    col1, col2 = st.columns(2)
-    with col1:
-        fig = px.bar(match_df, x='opposition_full', y='distance', title="📏 Total Distance by Match", text='distance')
-        st.plotly_chart(fig, use_container_width=True)
-    with col2:
-        fig = px.scatter(match_df, x='opposition_full', y='peak_speed', size='distance', color='distance',
-                         title="🚀 Peak Speed by Match")
-        st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("### 🏃‍♂️ High-Speed Running")
-    fig = px.bar(match_df, x='opposition_full', y='distance_over_27',
-                 title="High-Speed Running Distance (>27 km/h) by Match")
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("### 📈 HR Zone Duration (Matches)")
-    hr_match = match_df.dropna(subset=['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms'])
-    if not hr_match.empty:
-        fig = px.area(hr_match, x='opposition_full', 
-                      y=['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms'], 
-                      title="HR Zone Breakdown by Match")
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Heart rate data not available for match days.")
