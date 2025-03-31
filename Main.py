@@ -7,7 +7,7 @@ from datetime import timedelta
 st.set_page_config(page_title="Player Performance Dashboard", layout="wide")
 
 # Add logo and title
-col_logo, col_title = st.columns([1, 6])
+col_logo, col_title = st.columns([1, 8])
 with col_logo:
     st.image("Chelsea_Logo_Final.png", width=200)
 with col_title:
