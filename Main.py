@@ -175,11 +175,11 @@ with tab5:
             st.warning("📍 Sleep dropped below 6.5 hrs last week — plan for extra recovery!")
 
     st.markdown("### 📆 Latest Data Dates")
-    if not gps_df.empty:
+    if not gps_df.empty and pd.notnull(gps_df['date'].max()):
         st.markdown(f"- GPS: `{gps_df['date'].max().date()}`")
-    if not phys_df.empty:
+    if not phys_df.empty and pd.notnull(phys_df['testDate'].max()):
         st.markdown(f"- Physical Test: `{phys_df['testDate'].max().date()}`")
-    if not recovery_df.empty:
+    if not recovery_df.empty and pd.notnull(recovery_df['sessionDate'].max()):
         st.markdown(f"- Recovery: `{recovery_df['sessionDate'].max().date()}`")
 
 # ---------------- MATCH SUMMARY ----------------
