@@ -47,7 +47,7 @@ def format_safe_date(val):
 # --- Tabs ---
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📍 GPS Metrics", "🏋️ Physical Capability", "😴 Recovery Status",
-    "🎯 Priority Goals", "📊 Player Summary", "📅 Match Summary", "🔄 Rank Flow"
+    "🎯 Priority Goals", "📊 Player Summary", "📅 Match Summary", "📐 ACWR Calculator"
 ])
 
 # ---------------- TAB 1: GPS METRICS ----------------
