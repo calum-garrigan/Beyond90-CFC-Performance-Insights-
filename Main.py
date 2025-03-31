@@ -169,7 +169,7 @@ with tab5:
     col1, col2, col3 = st.columns(3)
     col1.metric("Peak Speed (km/h)", f"{latest_gps['peak_speed']:.1f}")
     col2.metric("Total Distance", f"{latest_gps['distance']:.0f} m")
-    col3.metric("Session Duration", f"{latest_gps['day_duration']} min")
+    col3.metric("Session Duration", f"{latest_gps['day_duration']:.1f} min")
 
     st.markdown("### 🧠 Smart Insights")
     top_game = gps_df[gps_df['opposition_full'].notna()].sort_values(by='distance', ascending=False).iloc[0]
@@ -182,9 +182,14 @@ with tab5:
             st.warning("📍 Sleep dropped below 6.5 hrs last week — plan for extra recovery!")
 
     st.markdown("### 📆 Latest Data Dates")
-    st.markdown(f"- GPS: `{format_safe_date(gps_df['date'].max())}`")
-    st.markdown(f"- Physical Test: `{format_safe_date(phys_df['testDate'].max())}`")
-    st.markdown(f"- Recovery: `{format_safe_date(recovery_df['sessionDate'].max())}`")
+    gps_latest = gps_df['date'].max()
+    phys_latest = phys_df['testDate'].max()
+    recovery_latest = recovery_df['sessionDate'].max()
+
+    st.markdown(f"- GPS: `{format_safe_date(gps_latest)}`")
+    st.markdown(f"- Physical Test: `{format_safe_date(phys_latest)}`")
+    st.markdown(f"- Recovery: `{format_safe_date(recovery_latest)}`")
+    
 
 # ---------------- TAB 6: MATCH SUMMARY ----------------
 with tab6:
