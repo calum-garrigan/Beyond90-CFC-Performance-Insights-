@@ -157,15 +157,16 @@ with tab5:
     st.header("📊 Player Snapshot Summary")
 
     st.markdown("### 🔍 Quick Highlights")
-    latest_gps = gps_df.sort_values(by='date').iloc[-1]
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Peak Speed (km/h)", f"{latest_gps['peak_speed']:.1f}")
-    col2.metric("Total Distance", f"{latest_gps['distance']:.0f} m")
-    col3.metric("Session Duration", f"{latest_gps['day_duration']} min")
+    if not gps_df.empty:
+        latest_gps = gps_df.sort_values(by='date').iloc[-1]
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Peak Speed (km/h)", f"{latest_gps['peak_speed']:.1f}")
+        col2.metric("Total Distance", f"{latest_gps['distance']:.0f} m")
+        col3.metric("Session Duration", f"{latest_gps['day_duration']} min")
 
-    st.markdown("### 🧠 Smart Insights")
-    top_game = gps_df.sort_values(by='distance', ascending=False).iloc[0]
-    st.info(f"Your highest match load this season was vs. {top_game['opposition_full']} ({top_game['distance']:.0f}m)")
+        st.markdown("### 🧠 Smart Insights")
+        top_game = gps_df.sort_values(by='distance', ascending=False).iloc[0]
+        st.info(f"Your highest match load this season was vs. {top_game['opposition_full']} ({top_game['distance']:.0f}m)")
 
     avg_sleep = recovery_df[recovery_df['category'] == 'sleep_duration']
     if not avg_sleep.empty:
@@ -174,9 +175,12 @@ with tab5:
             st.warning("📍 Sleep dropped below 6.5 hrs last week — plan for extra recovery!")
 
     st.markdown("### 📆 Latest Data Dates")
-    st.markdown(f"- GPS: `{gps_df['date'].max().date()}`")
-    st.markdown(f"- Physical Test: `{phys_df['testDate'].max().date()}`")
-    st.markdown(f"- Recovery: `{recovery_df['sessionDate'].max().date()}`")
+    if not gps_df.empty:
+        st.markdown(f"- GPS: `{gps_df['date'].max().date()}`")
+    if not phys_df.empty:
+        st.markdown(f"- Physical Test: `{phys_df['testDate'].max().date()}`")
+    if not recovery_df.empty:
+        st.markdown(f"- Recovery: `{recovery_df['sessionDate'].max().date()}`")
 
 # ---------------- MATCH SUMMARY ----------------
 with tab6:
