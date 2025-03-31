@@ -9,7 +9,7 @@ st.set_page_config(page_title="Player Performance Dashboard", layout="wide")
 # --- Logo and Title ---
 col1, col2 = st.columns([1, 8])  # Adjust proportions as needed
 with col1:
-    st.image("chelsea_logo.png", width=60)  # Make sure this file is in the same folder
+    st.image("Chelsea_Logo.jpg", width=60)  # Make sure this file is in the same folder
 with col2:
     st.title("Player Performance Dashboard")
     st.markdown("""
