@@ -9,7 +9,7 @@ st.set_page_config(page_title="Player Performance Dashboard", layout="wide")
 # Add logo and title
 col_logo, col_title = st.columns([1, 6])
 with col_logo:
-    st.image("https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg", width=60)
+    st.image("https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg", width=300)
 with col_title:
     st.title("📊 Player Performance Dashboard")
 
