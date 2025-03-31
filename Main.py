@@ -152,20 +152,25 @@ with tab3:
         if latest_score < -0.3:
             color = "#FFA500"  # orange
             emoji = "⚠️"
+            status_text = "Fatigue or insufficient recovery likely."
         elif latest_score > 0.3:
             color = "#00C851"  # green
             emoji = "🟢"
+            status_text = "You're well recovered."
         else:
             color = "#33B5E5"  # blue
             emoji = "✅"
+            status_text = "You're balanced."
 
         st.markdown(f"<h4 style='color:{color}'>{emoji} Emboss Baseline Score (Overall Recovery): {latest_score:.2f}</h4>", unsafe_allow_html=True)
-        st.markdown("""
+        st.markdown(f"""
 **What it means:**  
 The Emboss Baseline Score reflects your overall physiological readiness.  
 - ✅ Around `0` means you're balanced.  
 - ⚠️ Below `-0.3` suggests fatigue or insufficient recovery.  
 - 🟢 Above `+0.3` means you're likely well recovered.  
+
+**Current Status:** {status_text}  
 
 **Tip:** Combine this with recent sleep and workload data to guide your next session's intensity.
 """)
