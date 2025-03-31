@@ -40,6 +40,13 @@ gps_df, phys_df, recovery_df, priority_df = load_data()
 # Treat nulls as missing data for 'value' in recovery_df
 recovery_df['value'] = recovery_df['value'].where(pd.notnull(recovery_df['value']), None)
 
+# Utility function to safely format dates
+def format_safe_date(val):
+    try:
+        return pd.to_datetime(val).strftime("%Y-%m-%d")
+    except:
+        return "Invalid or missing date"
+
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "\U0001F4CD GPS Metrics",
@@ -179,20 +186,9 @@ with tab5:
     phys_latest = phys_df['testDate'].max()
     recovery_latest = recovery_df['sessionDate'].max()
 
-    if pd.api.types.is_datetime64_any_dtype(gps_df['date']):
-        st.markdown(f"- GPS: `{gps_latest.date()}`")
-    else:
-        st.markdown("- GPS: `No date column or invalid format`")
-
-    if pd.api.types.is_datetime64_any_dtype(phys_df['testDate']):
-        st.markdown(f"- Physical Test: `{phys_latest.date()}`")
-    else:
-        st.markdown("- Physical Test: `No date column or invalid format`")
-
-    if pd.api.types.is_datetime64_any_dtype(recovery_df['sessionDate']):
-        st.markdown(f"- Recovery: `{recovery_latest.date()}`")
-    else:
-        st.markdown("- Recovery: `No date column or invalid format`")
+    st.markdown(f"- GPS: `{format_safe_date(gps_latest)}`")
+    st.markdown(f"- Physical Test: `{format_safe_date(phys_latest)}`")
+    st.markdown(f"- Recovery: `{format_safe_date(recovery_latest)}`")
 
 # ---------------- MATCH SUMMARY ----------------
 with tab6:
