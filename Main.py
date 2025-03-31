@@ -15,13 +15,18 @@ Each section provides visual feedback to help you and your support team make the
 # Load Data
 @st.cache_data
 def load_data():
-    gps_df = pd.read_csv("CFC GPS Data.csv", parse_dates=["date"])
+    try:
+        gps_df = pd.read_csv("CFC GPS Data.csv", parse_dates=["date"], encoding='utf-8')
+    except UnicodeDecodeError:
+        gps_df = pd.read_csv("CFC GPS Data.csv", parse_dates=["date"], encoding='latin1')
+    except FileNotFoundError:
+        st.error("❌ 'CFC GPS Data.csv' not found. Please make sure it's in the same directory.")
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
     phys_df = pd.read_csv("CFC Physical Capability Data_.csv", parse_dates=["testDate"])
     recovery_df = pd.read_csv("CFC Recovery status Data.csv", parse_dates=["sessionDate"])
     priority_df = pd.read_csv("CFC Individual Priority Areas.csv", parse_dates=["Target set", "Review Date"])
     return gps_df, phys_df, recovery_df, priority_df
-
-gps_df, phys_df, recovery_df, priority_df = load_data()
 
 # Convert HR columns to minutes
 for col in ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms']:
