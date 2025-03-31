@@ -233,3 +233,59 @@ with tab6:
     fig = px.bar(match_df, x='opposition_full', y='distance_over_27',
                  title="High-Speed Running Distance (>27 km/h) by Match")
     st.plotly_chart(fig, use_container_width=True)
+
+# ---------------- PERFORMANCE RANK FLOW ----------------
+with st.container():
+    st.markdown("## 🔄 Rank Flow Overview (Your Best Performances by Match)")
+
+    rank_metrics = {
+        "Total Distance": "distance",
+        "Peak Speed": "peak_speed",
+        "High-Speed Distance": "distance_over_27",
+        "Session Duration": "day_duration"
+    }
+
+    selected_metrics = st.multiselect(
+        "Select metrics to visualize ranking across matches:",
+        options=list(rank_metrics.keys()),
+        default=["Total Distance", "Peak Speed"]
+    )
+
+    if selected_metrics:
+        rank_df = gps_df[['date', 'opposition_full'] + [rank_metrics[m] for m in selected_metrics]].copy()
+        rank_df = rank_df.dropna()
+
+        # Sort by date for consistent order
+        rank_df = rank_df.sort_values('date')
+        rank_df['match'] = rank_df['date'].dt.strftime('%d %b %Y') + ' vs ' + rank_df['opposition_full']
+
+        # Calculate ranks
+        for metric_name in selected_metrics:
+            col = rank_metrics[metric_name]
+            rank_df[f'{col}_rank'] = rank_df[col].rank(method='min', ascending=False)
+
+        melted = pd.melt(
+            rank_df,
+            id_vars=['match'],
+            value_vars=[f"{rank_metrics[m]}_rank" for m in selected_metrics],
+            var_name="Metric",
+            value_name="Rank"
+        )
+        # Clean up metric names
+        metric_map = {f"{rank_metrics[m]}_rank": m for m in selected_metrics}
+        melted["Metric"] = melted["Metric"].map(metric_map)
+
+        fig = px.line(
+            melted,
+            x="match",
+            y="Rank",
+            color="Metric",
+            markers=True,
+            title="📈 Performance Rank by Match"
+        )
+        fig.update_yaxes(autorange="reversed", title="Rank (1 = Best)")
+        fig.update_layout(xaxis_title="Match", xaxis_tickangle=-45)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Select at least one metric to view rank progression.")
+
