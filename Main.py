@@ -26,12 +26,16 @@ def load_data():
     phys_df = pd.read_csv("CFC Physical Capability Data_.csv", parse_dates=["testDate"])
     recovery_df = pd.read_csv("CFC Recovery status Data.csv", parse_dates=["sessionDate"])
     priority_df = pd.read_csv("CFC Individual Priority Areas.csv", parse_dates=["Target set", "Review Date"])
+
+    # Convert HR columns to minutes safely
+    hr_cols = ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms']
+    for col in hr_cols:
+        if col in gps_df.columns:
+            gps_df[col] = pd.to_timedelta(gps_df[col], errors='coerce').dt.total_seconds() / 60
+
     return gps_df, phys_df, recovery_df, priority_df
 
-# Convert HR columns to minutes safely
-hr_cols = ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms']
-for col in hr_cols:
-    gps_df[col] = pd.to_timedelta(gps_df[col], errors='coerce').dt.total_seconds() / 60
+gps_df, phys_df, recovery_df, priority_df = load_data()
 
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
