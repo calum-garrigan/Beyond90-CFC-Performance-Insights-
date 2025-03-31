@@ -114,7 +114,7 @@ with tab3:
 
     with subtab1:
         recovery_df.dropna(subset=["value"], inplace=True)
-        pivot = recovery_df.pivot(index="sessionDate", columns="category", values="value")
+        pivot = recovery_df.groupby(['sessionDate', 'category'])['value'].mean().unstack()
         st.line_chart(pivot)
 
     with subtab2:
