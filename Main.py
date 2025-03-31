@@ -6,7 +6,7 @@ from datetime import timedelta
 
 st.set_page_config(page_title="Player Performance Dashboard", layout="wide")
 
-st.title("📊 Player Performance Dashboard")
+st.title("\U0001F4CA Player Performance Dashboard")
 st.markdown("""
 Welcome to your personalized performance dashboard. Use the tabs below to explore how you’ve been training, recovering, and improving. 
 Each section provides visual feedback to help you and your support team make the best decisions.
@@ -42,23 +42,23 @@ recovery_df['value'] = recovery_df['value'].where(pd.notnull(recovery_df['value'
 
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📍 GPS Metrics",
-    "🏋️ Physical Capability",
-    "😴 Recovery Status",
-    "🎯 Priority Goals",
-    "📊 Player Summary",
-    "📅 Match Summary"
+    "\U0001F4CD GPS Metrics",
+    "\U0001F3CB️ Physical Capability",
+    "\U0001F634 Recovery Status",
+    "\U0001F3AF Priority Goals",
+    "\U0001F4CA Player Summary",
+    "\U0001F4C5 Match Summary"
 ])
 
 # ---------------- GPS METRICS ----------------
 with tab1:
-    st.header("📍 GPS Performance Metrics")
+    st.header("\U0001F4CD GPS Performance Metrics")
     col1, col2 = st.columns(2)
     with col1:
         season = st.selectbox("Filter by Season", gps_df['season'].dropna().unique())
     filtered = gps_df[gps_df['season'] == season]
 
-    with st.expander("📏 Distance Metrics"):
+    with st.expander("\U0001F4CF Distance Metrics"):
         fig = px.line(filtered, x='date', y=['distance', 'distance_over_21', 'distance_over_24', 'distance_over_27'],
                       title="Distance Over Time", labels={"value": "Distance (m)"})
         st.plotly_chart(fig, use_container_width=True)
@@ -68,7 +68,7 @@ with tab1:
                        title="Accel/Decel Events")
         st.plotly_chart(fig2, use_container_width=True)
 
-    with st.expander("🚀 Peak Speed & Session Time"):
+    with st.expander("\U0001F680 Peak Speed & Session Time"):
         fig3 = px.line(filtered, x='date', y='peak_speed', title="Peak Speed Over Time (km/h)")
         fig4 = px.bar(filtered, x='date', y='day_duration', title="Session Duration (Minutes)")
         st.plotly_chart(fig3, use_container_width=True)
@@ -84,8 +84,8 @@ with tab1:
 
 # ---------------- PHYSICAL CAPABILITY ----------------
 with tab2:
-    st.header("🏋️ Physical Capability Metrics")
-    subtab1, subtab2 = st.tabs(["📈 Trends Over Time", "🧭 Radar Overview"])
+    st.header("\U0001F3CB️ Physical Capability Metrics")
+    subtab1, subtab2 = st.tabs(["📈 Trends Over Time", "\U0001F9ED Radar Overview"])
 
     with subtab1:
         view_by = st.selectbox("Group Benchmark % by:", ["movement", "quality", "expression"])
@@ -109,7 +109,7 @@ with tab2:
 
 # ---------------- RECOVERY STATUS ----------------
 with tab3:
-    st.header("😴 Recovery Status")
+    st.header("\U0001F634 Recovery Status")
     subtab1, subtab2 = st.tabs(["📉 Recovery Trends", "📡 Radar Profile"])
 
     with subtab1:
@@ -138,7 +138,7 @@ with tab3:
 
 # ---------------- PRIORITY GOALS ----------------
 with tab4:
-    st.header("🎯 Individual Priority Areas")
+    st.header("\U0001F3AF Individual Priority Areas")
     for _, row in priority_df.iterrows():
         with st.expander(f"{row['Category']} – {row['Area']}"):
             st.markdown(f"**🎯 Target:** {row['Target']}")
@@ -154,7 +154,7 @@ with tab4:
 
 # ---------------- PLAYER SUMMARY ----------------
 with tab5:
-    st.header("📊 Player Snapshot Summary")
+    st.header("\U0001F4CA Player Snapshot Summary")
 
     st.markdown("### 🔍 Quick Highlights")
     if not gps_df.empty:
@@ -179,24 +179,24 @@ with tab5:
     phys_latest = phys_df['testDate'].max()
     recovery_latest = recovery_df['sessionDate'].max()
 
-    if pd.notnull(gps_latest):
+    if pd.api.types.is_datetime64_any_dtype(gps_df['date']):
         st.markdown(f"- GPS: `{gps_latest.date()}`")
     else:
-        st.markdown("- GPS: `No data`")
+        st.markdown("- GPS: `No date column or invalid format`")
 
-    if pd.notnull(phys_latest):
+    if pd.api.types.is_datetime64_any_dtype(phys_df['testDate']):
         st.markdown(f"- Physical Test: `{phys_latest.date()}`")
     else:
-        st.markdown("- Physical Test: `No data`")
+        st.markdown("- Physical Test: `No date column or invalid format`")
 
-    if pd.notnull(recovery_latest):
+    if pd.api.types.is_datetime64_any_dtype(recovery_df['sessionDate']):
         st.markdown(f"- Recovery: `{recovery_latest.date()}`")
     else:
-        st.markdown("- Recovery: `No data`")
+        st.markdown("- Recovery: `No date column or invalid format`")
 
 # ---------------- MATCH SUMMARY ----------------
 with tab6:
-    st.header("📅 Match Summary")
+    st.header("\U0001F4C5 Match Summary")
     match_df = gps_df[gps_df['opposition_full'].notna()]
 
     col1, col2 = st.columns(2)
