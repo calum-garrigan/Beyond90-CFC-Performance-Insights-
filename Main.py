@@ -6,7 +6,7 @@ from datetime import timedelta
 
 st.set_page_config(page_title="Player Performance Dashboard", layout="wide")
 
-st.title("\ud83c\udfdf\ufe0f Player Performance Dashboard")
+st.title("📊 Player Performance Dashboard")
 st.markdown("""
 Welcome to your personalized performance dashboard. Use the tabs below to explore how you’ve been training, recovering, and improving. 
 Each section provides visual feedback to help you and your support team make the best decisions.
@@ -36,6 +36,9 @@ def load_data():
     return gps_df, phys_df, recovery_df, priority_df
 
 gps_df, phys_df, recovery_df, priority_df = load_data()
+
+# Treat nulls as missing data for 'value' in recovery_df
+recovery_df['value'] = recovery_df['value'].where(pd.notnull(recovery_df['value']), None)
 
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
@@ -74,7 +77,7 @@ with tab1:
     with st.expander("❤️ Heart Rate Zones"):
         hr_cols = [col for col in ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms'] if col in filtered.columns]
         if hr_cols:
-            fig5 = px.area(filtered, x='date', y=hr_cols, stackgroup='one', title="Heart Rate Zones (mins)")
+            fig5 = px.area(filtered, x='date', y=hr_cols, title="Heart Rate Zones (mins)")
             st.plotly_chart(fig5, use_container_width=True)
         else:
             st.warning("Heart rate zone columns are missing from the dataset.")
