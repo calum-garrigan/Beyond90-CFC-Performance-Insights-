@@ -205,9 +205,10 @@ with tab6:
                  title="High-Speed Running Distance (>27 km/h) by Match")
     st.plotly_chart(fig, use_container_width=True)
 
-# ---------------- TAB 7: RANK FLOW ----------------
+# ---------------- PERFORMANCE RANK FLOW ----------------
 with tab7:
-    st.header("🔄 Rank Flow Overview")
+    st.header("🔄 Rank Flow Overview (Your Best Performances by Match)")
+
     rank_metrics = {
         "Total Distance": "distance",
         "Peak Speed": "peak_speed",
@@ -215,26 +216,47 @@ with tab7:
         "Session Duration": "day_duration"
     }
 
-    selected_metrics = st.multiselect("Select metrics to rank:", list(rank_metrics.keys()), default=["Total Distance", "Peak Speed"])
+    selected_metrics = st.multiselect(
+        "Select metrics to visualize ranking across matches:",
+        options=list(rank_metrics.keys()),
+        default=["Total Distance", "Peak Speed"]
+    )
 
     if selected_metrics:
-        rank_df = gps_df[['date', 'opposition_full'] + [rank_metrics[m] for m in selected_metrics]].dropna().copy()
-        rank_df = rank_df.sort_values('date')
+        rank_df = gps_df[['date', 'opposition_full'] + [rank_metrics[m] for m in selected_metrics]].copy()
+        rank_df = rank_df.dropna()
+
+        # Ensure 'date' is in datetime format
+        rank_df['date'] = pd.to_datetime(rank_df['date'], errors='coerce')
+        rank_df = rank_df.sort_values('date')  # Sort for consistent match order
         rank_df['match'] = rank_df['date'].dt.strftime('%d %b %Y') + ' vs ' + rank_df['opposition_full']
 
+        # Calculate ranks for each selected metric
         for metric_name in selected_metrics:
             col = rank_metrics[metric_name]
             rank_df[f'{col}_rank'] = rank_df[col].rank(method='min', ascending=False)
 
         melted = pd.melt(
-            rank_df, id_vars=['match'],
+            rank_df,
+            id_vars=['match'],
             value_vars=[f"{rank_metrics[m]}_rank" for m in selected_metrics],
-            var_name="Metric", value_name="Rank"
+            var_name="Metric",
+            value_name="Rank"
         )
+
+        # Clean up metric labels
         metric_map = {f"{rank_metrics[m]}_rank": m for m in selected_metrics}
         melted["Metric"] = melted["Metric"].map(metric_map)
 
-        fig = px.line(melted, x="match", y="Rank", color="Metric", markers=True, title="📈 Performance Rank by Match")
+        # Create the plot
+        fig = px.line(
+            melted,
+            x="match",
+            y="Rank",
+            color="Metric",
+            markers=True,
+            title="📈 Performance Rank by Match"
+        )
         fig.update_yaxes(autorange="reversed", title="Rank (1 = Best)")
         fig.update_layout(xaxis_title="Match", xaxis_tickangle=-45)
         st.plotly_chart(fig, use_container_width=True)
