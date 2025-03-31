@@ -28,9 +28,10 @@ def load_data():
     priority_df = pd.read_csv("CFC Individual Priority Areas.csv", parse_dates=["Target set", "Review Date"])
     return gps_df, phys_df, recovery_df, priority_df
 
-# Convert HR columns to minutes
-for col in ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms']:
-    gps_df[col] = pd.to_timedelta(gps_df[col]).dt.total_seconds() / 60
+# Safely convert HR columns to minutes
+hr_cols = ['hr_zone_1_hms', 'hr_zone_2_hms', 'hr_zone_3_hms', 'hr_zone_4_hms', 'hr_zone_5_hms']
+for col in hr_cols:
+    gps_df[col] = pd.to_timedelta(gps_df[col], errors='coerce').dt.total_seconds() / 60
 
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
