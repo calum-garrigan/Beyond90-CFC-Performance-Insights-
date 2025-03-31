@@ -165,7 +165,11 @@ with tab4:
 with tab5:
     st.header("📊 Player Snapshot Summary")
     st.markdown("### 🔍 Quick Highlights")
-    latest_gps = gps_df.sort_values(by='date').iloc[-1]
+
+    gps_df_sorted = gps_df.sort_values(by='date')
+    latest_gps = gps_df_sorted.iloc[-1]
+    latest_gps_match = gps_df_sorted[gps_df_sorted['opposition_full'].notna()].iloc[-1]
+
     col1, col2, col3 = st.columns(3)
     col1.metric("Peak Speed (km/h)", f"{latest_gps['peak_speed']:.1f}")
     col2.metric("Total Distance", f"{latest_gps['distance']:.0f} m")
