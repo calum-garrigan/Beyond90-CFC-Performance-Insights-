@@ -262,7 +262,7 @@ with tab7:
     """)
 
 # ---------------- MATCH COMPARISON TAB ----------------
-with tab8:
+with tabs8:
     st.header("📊 Side-by-Side Match Comparison")
     st.markdown("Compare selected matches for selected metrics.")
 
@@ -270,7 +270,6 @@ with tab8:
     match_df['date'] = pd.to_datetime(match_df['date'], errors='coerce')
     match_df = match_df.dropna(subset=['date'])
 
-    # Group by opponent and match date
     match_df['match_label'] = match_df.apply(lambda row: f"{row['opposition_full']} ({row['date'].strftime('%d/%m/%Y')})", axis=1)
 
     available_metrics = [
@@ -284,7 +283,9 @@ with tab8:
         "accel_decel_over_4_5"
     ]
 
-    match_options = match_df['match_label'].tolist()
+    match_df = match_df.sort_values(by='date', ascending=False)  # Sort newest to oldest
+    match_options = match_df['match_label'].unique().tolist()  # Ensure all unique match entries
+
     selected_matches = st.multiselect("Select matches to compare:", match_options)
     selected_metrics = st.multiselect("Select metrics to compare:", available_metrics, default=["peak_speed", "distance_over_27"])
 
@@ -298,4 +299,3 @@ with tab8:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Please select both matches and metrics to display the comparison.")
-
