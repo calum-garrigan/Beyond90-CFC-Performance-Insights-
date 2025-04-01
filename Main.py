@@ -270,6 +270,9 @@ with tab8:
     match_df['date'] = pd.to_datetime(match_df['date'], errors='coerce')
     match_df = match_df.dropna(subset=['date'])
 
+    # Combine opponent name with date for unique labeling
+    match_df['match_label'] = match_df.apply(lambda row: f"{row['opposition_full']} ({row['date'].strftime('%d/%m/%Y')})", axis=1)
+
     available_metrics = [
         "peak_speed",
         "distance",
@@ -281,17 +284,18 @@ with tab8:
         "accel_decel_over_4_5"
     ]
 
-    unique_opponents = match_df['opposition_full'].dropna().unique()
-    selected_opponents = st.multiselect("Select opponents to compare:", unique_opponents)
+    match_options = match_df['match_label'].tolist()
+    selected_matches = st.multiselect("Select matches to compare:", match_options)
     selected_metrics = st.multiselect("Select metrics to compare:", available_metrics, default=["peak_speed", "distance_over_27"])
 
-    if selected_opponents and selected_metrics:
-        filtered_df = match_df[match_df['opposition_full'].isin(selected_opponents)][['opposition_full'] + selected_metrics]
-        melted = filtered_df.melt(id_vars='opposition_full', value_vars=selected_metrics, var_name='Metric', value_name='Value')
+    if selected_matches and selected_metrics:
+        filtered_df = match_df[match_df['match_label'].isin(selected_matches)][['match_label'] + selected_metrics]
+        melted = filtered_df.melt(id_vars='match_label', value_vars=selected_metrics, var_name='Metric', value_name='Value')
 
-        fig = px.bar(melted, x='opposition_full', y='Value', color='Metric', barmode='group',
+        fig = px.bar(melted, x='match_label', y='Value', color='Metric', barmode='group',
                      title="Match Comparison by Selected Metrics")
-        fig.update_layout(xaxis_title="Opponent", xaxis_tickangle=-45)
+        fig.update_layout(xaxis_title="Match", xaxis_tickangle=-45)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Please select both opponents and metrics to display the comparison.")
+        st.info("Please select both matches and metrics to display the comparison.")
+
