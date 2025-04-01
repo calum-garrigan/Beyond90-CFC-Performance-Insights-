@@ -270,7 +270,7 @@ with tab8:
     match_df['date'] = pd.to_datetime(match_df['date'], errors='coerce')
     match_df = match_df.dropna(subset=['date'])
 
-    # Combine opponent name with date for unique labeling
+    # Group by opponent and match date
     match_df['match_label'] = match_df.apply(lambda row: f"{row['opposition_full']} ({row['date'].strftime('%d/%m/%Y')})", axis=1)
 
     available_metrics = [
