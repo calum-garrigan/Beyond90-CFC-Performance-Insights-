@@ -263,23 +263,37 @@ with tab7:
 
 # ---------------- MATCH COMPARISON TAB ----------------
 with tab8:
-    st.header("📊 Side-by-Side Match Comparison")
-    st.markdown("Compare selected matches for Peak Speed, High-Speed Distance (>27 km/h), and Accel/Decel Events >3.5 m/s²")
+     st.header("📊 Side-by-Side Match Comparison")
+    st.markdown("Compare selected matches for selected metrics.")
 
     match_df = gps_df[gps_df['opposition_full'].notna()].copy()
-    comparison_df = match_df[['date', 'opposition_full', 'peak_speed', 'distance_over_27', 'accel_decel_over_3_5']].copy()
-    comparison_df = comparison_df.sort_values(by='date')
+    match_df['date'] = pd.to_datetime(match_df['date'], errors='coerce')
+    match_df = match_df.dropna(subset=['date'])
+    match_df['Match'] = match_df['date'].dt.strftime('%d %b %Y') + ' vs ' + match_df['opposition_full']
 
-    comparison_df['date'] = pd.to_datetime(comparison_df['date'], errors='coerce')
-    comparison_df = comparison_df.dropna(subset=['date'])
+    available_metrics = [
+        "peak_speed",
+        "distance",
+        "distance_over_21",
+        "distance_over_24",
+        "distance_over_27",
+        "accel_decel_over_2_5",
+        "accel_decel_over_3_5",
+        "accel_decel_over_4_5"
+    ]
 
-    melted = comparison_df.melt(id_vars=['date', 'opposition_full'],
-                                value_vars=['peak_speed', 'distance_over_27', 'accel_decel_over_3_5'],
-                                var_name='Metric', value_name='Value')
-    melted['Match'] = pd.to_datetime(melted['date'], errors='coerce').dt.strftime('%d %b %Y') + ' vs ' + melted['opposition_full']
+    selected_matches = st.multiselect("Select matches to compare:", match_df['Match'].unique())
+    selected_metrics = st.multiselect("Select metrics to compare:", available_metrics, default=["peak_speed", "distance_over_27"])
 
-    fig = px.bar(melted, x='Match', y='Value', color='Metric', barmode='group',
-                 title='Side-by-Side Match Comparison: Peak Speed, High-Speed Distance, Accel/Decel > 3.5 m/s²')
-    fig.update_layout(xaxis_tickangle=-45)
-    st.plotly_chart(fig, use_container_width=True)
+    if selected_matches and selected_metrics:
+        filtered_df = match_df[match_df['Match'].isin(selected_matches)][['Match'] + selected_metrics]
+        melted = filtered_df.melt(id_vars='Match', value_vars=selected_metrics, var_name='Metric', value_name='Value')
+
+        fig = px.bar(melted, x='Match', y='Value', color='Metric', barmode='group',
+                     title="Match Comparison by Selected Metrics")
+        fig.update_layout(xaxis_tickangle=-45)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Please select both matches and metrics to display the comparison.")
+
 
