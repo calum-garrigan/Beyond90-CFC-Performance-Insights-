@@ -262,7 +262,7 @@ with tab7:
     """)
 
 # ---------------- MATCH COMPARISON TAB ----------------
-with tabs8:
+with tab8:
     st.header("📊 Side-by-Side Match Comparison")
     st.markdown("Compare selected matches for selected metrics.")
 
