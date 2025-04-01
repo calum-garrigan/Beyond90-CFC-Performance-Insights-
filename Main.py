@@ -269,7 +269,6 @@ with tab8:
     match_df = gps_df[gps_df['opposition_full'].notna()].copy()
     match_df['date'] = pd.to_datetime(match_df['date'], errors='coerce')
     match_df = match_df.dropna(subset=['date'])
-    match_df['Match'] = match_df['date'].dt.strftime('%d %b %Y') + ' vs ' + match_df['opposition_full']
 
     available_metrics = [
         "peak_speed",
@@ -282,17 +281,17 @@ with tab8:
         "accel_decel_over_4_5"
     ]
 
-    selected_matches = st.multiselect("Select matches to compare:", match_df['Match'].unique())
+    unique_opponents = match_df['opposition_full'].dropna().unique()
+    selected_opponents = st.multiselect("Select opponents to compare:", unique_opponents)
     selected_metrics = st.multiselect("Select metrics to compare:", available_metrics, default=["peak_speed", "distance_over_27"])
 
-    if selected_matches and selected_metrics:
-        filtered_df = match_df[match_df['Match'].isin(selected_matches)][['Match'] + selected_metrics]
-        melted = filtered_df.melt(id_vars='Match', value_vars=selected_metrics, var_name='Metric', value_name='Value')
+    if selected_opponents and selected_metrics:
+        filtered_df = match_df[match_df['opposition_full'].isin(selected_opponents)][['opposition_full'] + selected_metrics]
+        melted = filtered_df.melt(id_vars='opposition_full', value_vars=selected_metrics, var_name='Metric', value_name='Value')
 
-        fig = px.bar(melted, x='Match', y='Value', color='Metric', barmode='group',
+        fig = px.bar(melted, x='opposition_full', y='Value', color='Metric', barmode='group',
                      title="Match Comparison by Selected Metrics")
-        fig.update_layout(xaxis_tickangle=-45)
+        fig.update_layout(xaxis_title="Opponent", xaxis_tickangle=-45)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Please select both matches and metrics to display the comparison.")
-
+        st.info("Please select both opponents and metrics to display the comparison.")
