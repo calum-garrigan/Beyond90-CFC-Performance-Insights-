@@ -270,10 +270,13 @@ with tab8:
     comparison_df = match_df[['date', 'opposition_full', 'peak_speed', 'distance_over_27', 'accel_decel_over_3_5']].copy()
     comparison_df = comparison_df.sort_values(by='date')
 
+    comparison_df['date'] = pd.to_datetime(comparison_df['date'], errors='coerce')
+    comparison_df = comparison_df.dropna(subset=['date'])
+
     melted = comparison_df.melt(id_vars=['date', 'opposition_full'],
                                 value_vars=['peak_speed', 'distance_over_27', 'accel_decel_over_3_5'],
                                 var_name='Metric', value_name='Value')
-    melted['Match'] = melted['date'].dt.strftime('%d %b %Y') + ' vs ' + melted['opposition_full']
+    melted['Match'] = pd.to_datetime(melted['date'], errors='coerce').dt.strftime('%d %b %Y') + ' vs ' + melted['opposition_full']
 
     fig = px.bar(melted, x='Match', y='Value', color='Metric', barmode='group',
                  title='Side-by-Side Match Comparison: Peak Speed, High-Speed Distance, Accel/Decel > 3.5 m/s²')
