@@ -263,7 +263,7 @@ with tab7:
 
 # ---------------- MATCH COMPARISON TAB ----------------
 with tab8:
-     st.header("📊 Side-by-Side Match Comparison")
+    st.header("📊 Side-by-Side Match Comparison")
     st.markdown("Compare selected matches for selected metrics.")
 
     match_df = gps_df[gps_df['opposition_full'].notna()].copy()
@@ -295,5 +295,4 @@ with tab8:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Please select both matches and metrics to display the comparison.")
-
 
