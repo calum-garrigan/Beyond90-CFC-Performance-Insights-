@@ -47,7 +47,7 @@ def format_safe_date(val):
 # --- Tabs ---
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📍 GPS Metrics", "🏋️ Physical Capability", "😴 Recovery Status",
-    "🎯 Priority Goals", "📊 Player Summary", "📅 Match Summary", "📐 ACWR Calculator", "Match Comparison"
+    "🎯 Priority Goals", "📊 Player Summary", "📅 Match Summary", "📐 ACWR Calculator", "Match Comparison", "🤖 Ask the AI"
 ])
 
 # ---------------- TAB 1: GPS METRICS ----------------
@@ -299,3 +299,56 @@ with tab8:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Please select both matches and metrics to display the comparison.")
+
+# ---------------- AI CHAT TAB ----------------
+with tabs9:
+    st.header("🤖 Ask the AI")
+    st.markdown("Ask anything about your performance data. For example:")
+    st.markdown("- How far did I run last week?\n- What was my peak speed in my last game?\n- Am I training too much?")
+
+    user_question = st.text_input("Your question:")
+    openai_api_key = st.text_input("Enter your OpenAI API key:", type="password")
+
+    if user_question and openai_api_key:
+        # Combine all relevant data
+        latest_gps = gps_df.sort_values(by='date', ascending=False).head(5).to_string(index=False)
+        latest_phys = phys_df.sort_values(by='testDate', ascending=False).head(5).to_string(index=False)
+        latest_recovery = recovery_df.sort_values(by='sessionDate', ascending=False).head(5).to_string(index=False)
+        latest_priority = priority_df.sort_values(by='Review Date', ascending=False).head(3).to_string(index=False)
+
+        prompt = f"""
+        You are a football performance assistant helping a player understand their performance.
+        They asked: \"{user_question}\"
+
+        ---
+        GPS Data:
+        {latest_gps}
+
+        Physical Capability:
+        {latest_phys}
+
+        Recovery:
+        {latest_recovery}
+
+        Priority Areas:
+        {latest_priority}
+        ---
+
+        Respond clearly and helpfully based on the data.
+        """
+
+        try:
+            openai.api_key = openai_api_key
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant for interpreting athlete GPS data, physical tests, recovery, and goals."},
+                    {"role": "user", "content": prompt},
+                ]
+            )
+            answer = response['choices'][0]['message']['content']
+            st.success("AI Response:")
+            st.write(answer)
+
+        except Exception as e:
+            st.error(f"Error: {e}")
