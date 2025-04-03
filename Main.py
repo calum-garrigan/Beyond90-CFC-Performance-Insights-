@@ -309,9 +309,8 @@ with tabs9:
     st.markdown("- How far did I run last week?\n- What was my peak speed in my last game?\n- Am I training too much?")
 
     user_question = st.text_input("Your question:")
-    openai_api_key = st.text_input("Enter your OpenAI API key:", type="password")
 
-    if user_question and openai_api_key:
+    if user_question:
         # Combine all relevant data
         latest_gps = gps_df.sort_values(by='date', ascending=False).head(5).to_string(index=False)
         latest_phys = phys_df.sort_values(by='testDate', ascending=False).head(5).to_string(index=False)
@@ -340,7 +339,7 @@ with tabs9:
         """
 
         try:
-            openai.api_key = openai_api_key
+            openai.api_key = st.secrets["openai"]["api_key"]
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
