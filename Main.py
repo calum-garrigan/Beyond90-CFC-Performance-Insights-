@@ -339,7 +339,9 @@ with tab9:
         """
 
         try:
+            import openai
             openai.api_key = st.secrets["openai"]["api_key"]
+
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
@@ -347,9 +349,10 @@ with tab9:
                     {"role": "user", "content": prompt},
                 ]
             )
-            answer = response.choices[0].message['content']
+            answer = response.choices[0].message["content"]
             st.success("AI Response:")
             st.write(answer)
 
         except Exception as e:
             st.error(f"Error: {e}")
+
