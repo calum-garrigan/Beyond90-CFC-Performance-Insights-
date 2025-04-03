@@ -342,7 +342,7 @@ with tab9:
         try:
             client = OpenAI(api_key=st.secrets["openai"]["api_key"])
             response = client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant for interpreting athlete GPS data, physical tests, recovery, and goals."},
                     {"role": "user", "content": prompt},
