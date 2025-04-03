@@ -340,7 +340,7 @@ with tab9:
         """
 
         try:
-            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -354,4 +354,5 @@ with tab9:
 
         except Exception as e:
             st.error(f"Error: {e}")
+
 
