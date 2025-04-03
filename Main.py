@@ -338,15 +338,15 @@ with tab9:
         """
 
         try:
-            client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-            response = client.chat.completions.create(
+            openai.api_key = st.secrets["openai"]["api_key"]
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant for interpreting athlete GPS data, physical tests, recovery, and goals."},
                     {"role": "user", "content": prompt},
                 ]
             )
-            answer = response.choices[0].message.content
+            answer = response.choices[0].message['content']
             st.success("AI Response:")
             st.write(answer)
 
