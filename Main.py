@@ -311,7 +311,6 @@ with tab9:
     user_question = st.text_input("Your question:")
 
     if user_question:
-        # Combine all relevant data
         latest_gps = gps_df.sort_values(by='date', ascending=False).head(5).to_string(index=False)
         latest_phys = phys_df.sort_values(by='testDate', ascending=False).head(5).to_string(index=False)
         latest_recovery = recovery_df.sort_values(by='sessionDate', ascending=False).head(5).to_string(index=False)
@@ -339,15 +338,15 @@ with tab9:
         """
 
         try:
-            openai.api_key = st.secrets["openai"]["api_key"]
-            response = openai.ChatCompletion.create(
+            client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant for interpreting athlete GPS data, physical tests, recovery, and goals."},
                     {"role": "user", "content": prompt},
                 ]
             )
-            answer = response['choices'][0]['message']['content']
+            answer = response.choices[0].message.content
             st.success("AI Response:")
             st.write(answer)
 
