@@ -303,7 +303,7 @@ with tab8:
         st.info("Please select both matches and metrics to display the comparison.")
 
 # ---------------- AI CHAT TAB ----------------
-with tabs9:
+with tab9:
     st.header("🤖 Ask the AI")
     st.markdown("Ask anything about your performance data. For example:")
     st.markdown("- How far did I run last week?\n- What was my peak speed in my last game?\n- Am I training too much?")
