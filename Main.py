@@ -218,53 +218,6 @@ with tab6:
                  title="High-Speed Running Distance (>27 km/h) by Match")
     st.plotly_chart(fig, use_container_width=True)
 
-# ---------------- ACUTE : CHRONIC WORKLOAD (ACWR) ----------------
-with tab7:
-    st.header("📐 Acute:Chronic Workload Ratio (ACWR)")
-    st.markdown("""
-    **ACWR** compares the most recent week's load (acute) with the longer-term average (chronic).
-    It's used to monitor injury risk and training spikes.
-
-    Formula:
-
-    `ACWR = Acute Load (7-day sum) / Chronic Load (28-day rolling average)`
-    """)
-
-    acwr_metric = st.selectbox("Select Load Metric for ACWR", [
-        "distance",
-        "distance_over_21",
-        "distance_over_24",
-        "distance_over_27",
-        "accel_decel_over_2_5",
-        "accel_decel_over_3_5",
-        "accel_decel_over_4_5"
-    ], index=3)
-
-    acwr_df = gps_df[['date', acwr_metric]].dropna().sort_values(by='date')
-    acwr_df['date'] = pd.to_datetime(acwr_df['date'], errors='coerce')
-    acwr_df = acwr_df.dropna(subset=['date'])
-    acwr_df.set_index('date', inplace=True)
-
-    acwr_df['acute'] = acwr_df[acwr_metric].rolling(window=7).sum()
-    acwr_df['chronic'] = acwr_df[acwr_metric].rolling(window=28).mean()
-    acwr_df['ACWR'] = acwr_df['acute'] / acwr_df['chronic']
-    acwr_df = acwr_df.dropna().reset_index()
-
-    fig = px.line(acwr_df, x='date', y='ACWR', title=f"ACWR Over Time ({acwr_metric})")
-    fig.add_hline(y=0.8, line_dash="dot", line_color="orange", annotation_text="Lower Threshold")
-    fig.add_hline(y=1.5, line_dash="dot", line_color="red", annotation_text="Upper Risk Zone")
-    fig.update_layout(xaxis_title="Date", yaxis_title="ACWR Ratio")
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("""
-    **Guidance:**
-    - ✅ **0.8 - 1.3**: Balanced and safe zone
-    - ⚠️ **< 0.8**: Undertraining — consider increasing load
-    - 🔴 **> 1.5**: Spike risk — potential injury risk from sudden overload
-
-    Always interpret ACWR in context with recovery, sleep, and subjective feedback.
-    """)
-
 # ---------------- MATCH COMPARISON TAB ----------------
 with tab8:
     st.header("📊 Side-by-Side Match Comparison")
@@ -304,55 +257,5 @@ with tab8:
     else:
         st.info("Please select both matches and metrics to display the comparison.")
 
-# ---------------- AI CHAT TAB ----------------
-with tab9:
-    st.header("🤖 Ask the AI")
-    st.markdown("Ask anything about your performance data. For example:")
-    st.markdown("- How far did I run last week?\n- What was my peak speed in my last game?\n- Am I training too much?")
-
-    user_question = st.text_input("Your question:")
-
-    if user_question:
-        latest_gps = gps_df.sort_values(by='date', ascending=False).head(5).to_string(index=False)
-        latest_phys = phys_df.sort_values(by='testDate', ascending=False).head(5).to_string(index=False)
-        latest_recovery = recovery_df.sort_values(by='sessionDate', ascending=False).head(5).to_string(index=False)
-        latest_priority = priority_df.sort_values(by='Review Date', ascending=False).head(3).to_string(index=False)
-
-        prompt = f"""
-        You are a football performance assistant helping a player understand their performance.
-        They asked: \"{user_question}\"
-
-        ---
-        GPS Data:
-        {latest_gps}
-
-        Physical Capability:
-        {latest_phys}
-
-        Recovery:
-        {latest_recovery}
-
-        Priority Areas:
-        {latest_priority}
-        ---
-
-        Respond clearly and helpfully based on the data.
-        """
-
-        try:
-            client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant for interpreting athlete GPS data, physical tests, recovery, and goals."},
-                    {"role": "user", "content": prompt},
-                ]
-            )
-            answer = response.choices[0].message.content
-            st.success("AI Response:")
-            st.write(answer)
-
-        except Exception as e:
-            st.error(f"Error: {e}")
 
 
