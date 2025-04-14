@@ -49,9 +49,9 @@ def format_safe_date(val):
         return "Invalid or missing date"
 
 # --- Tabs ---
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📍 GPS Metrics", "🏋️ Physical Capability", "😴 Recovery Status",
-    "🎯 Priority Goals", "📊 Player Summary", "📅 Match Summary", "📐 ACWR Calculator", "Match Comparison", "🤖 Ask the AI"
+    "🎯 Priority Goals", "📊 Player Summary", "📅 Match Summary", "Match Comparison"
 ])
 
 # ---------------- TAB 1: GPS METRICS ----------------
@@ -219,7 +219,7 @@ with tab6:
     st.plotly_chart(fig, use_container_width=True)
 
 # ---------------- MATCH COMPARISON TAB ----------------
-with tab8:
+with tab7:
     st.header("📊 Side-by-Side Match Comparison")
     st.markdown("Compare selected matches for selected metrics.")
 
